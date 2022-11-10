@@ -17,8 +17,13 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.static import serve
 from . import settings
+from rest_framework_swagger.views import get_swagger_view
+
+# For swagger view
+schema_view = get_swagger_view(title='ArtistX API')
 
 urlpatterns = [
+    path('', schema_view),
     path('jet/', include('jet.urls', 'jet')),
     path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
     path('admin/', admin.site.urls),
