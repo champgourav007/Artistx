@@ -31,7 +31,9 @@ SECRET_KEY = DJANGO_SECRET_KEY
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'artistx-backend.herokuapp.com', '127.0.0.1'
+    'artistx-backend.herokuapp.com', 
+    '127.0.0.1',
+    'artistx.azurewebsites.net',
 ]
 
 
