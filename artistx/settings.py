@@ -28,7 +28,7 @@ DJANGO_SECRET_KEY = config("DJANGO_SECRET_KEY")
 SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'artistx-backend.herokuapp.com', 
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_swagger',
     'rest_framework',
+    'auth_app',
 ]
 
 MIDDLEWARE = [
