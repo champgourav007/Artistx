@@ -35,6 +35,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'artistx.azurewebsites.net',
     '636d289fae9c64543d085613--resonant-llama-d7d613.netlify.app',
+    'artistx-backend.onrender.com',
 ]
 
 
