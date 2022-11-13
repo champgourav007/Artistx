@@ -1,6 +1,7 @@
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
+from datetime import datetime
 
 
 # Create your models here.
@@ -17,19 +18,36 @@ class Profile(models.Model):
     description = models.TextField(blank=True, null=True)
     is_artist = models.BooleanField(default=False)
     
+    def get_age(self):
+        curr_date = datetime.now()
+        delta = curr_date - self.dob
+        return delta.days
+    
+    def __str__(self):
+        return f'{self.user.first_name} {self.user.last_name}'
+    
 class ArtistsProfile(models.Model):
-    users = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
     rating = models.DecimalField(max_digits=10, decimal_places=1)
     fee = models.DecimalField(max_digits=20, decimal_places=2)
     on_break = models.BooleanField(default=False)
     #availability column is pending for now will work in future
     
+    def __str__(self):
+        return f'{self.profile}'
+    
 class Language(models.Model):
-    users = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     language = models.CharField(max_length=50)
+    
+    def __str__(self):
+        return f'{self.profile} {self.language}'
     
 class Review(models.Model):
     artist = models.ForeignKey(ArtistsProfile, on_delete=models.CASCADE)
     user_id = models.UUIDField(blank=True, null=True)
     rating = models.DecimalField(null=True, blank=True, decimal_places=1, max_digits=10)
     review = models.TextField()
+    
+    def __str__(self):
+        return f'{self.artist}'

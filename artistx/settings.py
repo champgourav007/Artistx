@@ -146,5 +146,5 @@ MEDIA_ROOT = [
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-DATE_INPUT_FORMATS = ['%d-%m-%Y']
+DATE_INPUT_FORMATS = ['%Y-%m-%d']
 REST_FRAMEWORK = { 'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema' }
