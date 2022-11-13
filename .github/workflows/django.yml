@@ -29,5 +29,6 @@ jobs:
       env:
         DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        IS_DEVELOPMENT: ${{ secrets.IS_DEVELOPMENT }}
       run: |
         python manage.py test

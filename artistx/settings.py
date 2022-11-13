@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Setup env 
 DATABASE_URL = config('DATABASE_URL')
 DJANGO_SECRET_KEY = config("DJANGO_SECRET_KEY")
+IS_DEVELOPMENT = config("IS_DEVELOPMENT")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -28,7 +29,7 @@ DJANGO_SECRET_KEY = config("DJANGO_SECRET_KEY")
 SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = IS_DEVELOPMENT
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
