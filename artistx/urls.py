@@ -17,16 +17,25 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.static import serve
 from . import settings
-from rest_framework_swagger.views import get_swagger_view
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view as swagger_get_schema_view 
 
 # For swagger view
-schema_view = get_swagger_view(title='ArtistX API')
+schema_view_swagger = swagger_get_schema_view(
+    openapi.Info(
+        title="ArtistX API",
+        default_version='1.0.0',
+        description="API documentation of App",
+    ),
+    public=True,
+)
 
 urlpatterns = [
-    path('', schema_view),
+    path('',  schema_view_swagger.with_ui('swagger', cache_timeout=0), name="swagger-schema"),
     path('jet/', include('jet.urls', 'jet')),
     path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
     path('admin/', admin.site.urls),
+    path('api/', include('auth_app.urls')),
     re_path(r'^files/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]

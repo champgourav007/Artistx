@@ -31,10 +31,7 @@ SECRET_KEY = DJANGO_SECRET_KEY
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'artistx-backend.herokuapp.com', 
     '127.0.0.1',
-    'artistx.azurewebsites.net',
-    '636d289fae9c64543d085613--resonant-llama-d7d613.netlify.app',
     'artistx-backend.onrender.com',
 ]
 
@@ -44,20 +41,22 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'jet.dashboard',
     'jet',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework_swagger',
     'rest_framework',
+    'drf_yasg',
     'auth_app',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -146,4 +145,5 @@ MEDIA_ROOT = [
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DATE_INPUT_FORMATS = ['%d-%m-%Y']
 REST_FRAMEWORK = { 'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema' }
