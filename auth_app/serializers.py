@@ -13,3 +13,5 @@ class SignUpResponseSerailizer(serializers.Serializer):
     dob = serializers.DateField(input_formats=['%Y-%m-%d',])
     email = serializers.EmailField()
     profile_id = serializers.UUIDField()
+    access_token = serializers.CharField(max_length=1000)
+    refresh_token = serializers.CharField(max_length=1000)

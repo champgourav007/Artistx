@@ -19,6 +19,12 @@ from django.views.static import serve
 from . import settings
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view as swagger_get_schema_view 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
+
 
 # For swagger view
 schema_view_swagger = swagger_get_schema_view(
@@ -35,7 +41,10 @@ urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),
     path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
     path('admin/', admin.site.urls),
-    path('api/', include('auth_app.urls')),
+    path('api/auth/', include('auth_app.urls')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     re_path(r'^files/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]
