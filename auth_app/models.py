@@ -25,7 +25,7 @@ class Profile(models.Model):
         return delta.days
     
     def __str__(self):
-        return f'{self.user.first_name} {self.user.last_name}'
+        return f'{self.user.first_name} {self.user.last_name} {self.user.email}'
     
 class ArtistsProfile(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)

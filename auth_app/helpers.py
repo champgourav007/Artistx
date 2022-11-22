@@ -20,7 +20,7 @@ def send_email(to, profile_id):
     print(done)
     return
 
-def update_profile(data, profile:Profile):
+def update_profile(data, profile):
     profile.dob = data.get('dob') or profile.dob
     profile.country = data.get('country') or profile.country
     profile.state = data.get('state') or profile.state

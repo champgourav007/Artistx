@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 from decouple import config
 import dj_database_url
@@ -33,8 +34,6 @@ SECRET_KEY = DJANGO_SECRET_KEY
 DEBUG = IS_DEVELOPMENT
 
 ALLOWED_HOSTS = [
-    # '127.0.0.1',
-    # 'artistx-backend.onrender.com',
     ALLOWED_HOSTS_URI,
 ]
 
@@ -155,4 +154,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
-    }
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+}

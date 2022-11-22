@@ -115,8 +115,14 @@ def create_profile(request, profile_id):
             profile = ProfileSerializer(data=request.data)
             if profile.is_valid():
                 data = profile.data
-                updated_profile = helpers.update_profile(data, profile_user)
-                print(updated_profile.dob)
+                profile_user.dob = data.get('dob', False) or profile_user.dob
+                profile_user.country = data.get('country', False) or profile_user.country
+                profile_user.state = data.get('state', False) or profile_user.state
+                profile_user.currency_code = data.get('currency_code', False) or profile_user.currency_code
+                profile_user.profile_user_headline = data.get('profile_headline', False) or profile_user.profile_headline
+                profile_user.description = data.get('description', False) or profile_user.description
+                profile_user.save()
+
                 return Response(data={
                     "message" : "Account Updated Successfully",
                     "updated_profile" : data
