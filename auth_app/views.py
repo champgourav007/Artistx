@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
@@ -8,8 +9,19 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import (
     RefreshToken,
 )
-from .serializers import SignUpRequestSerailizer, SignUpResponseSerailizer
-from .models import Profile
+from .serializers import SignUpRequestSerailizer, SignUpResponseSerailizer, ProfileSerializer
+from .models import Profile, ArtistsProfile
+from . import helpers
+
+def create_artist_profile(profile):
+    try:
+        artist_profile = ArtistsProfile.objects.create(
+            profile = profile
+        )
+        artist_profile.save()
+        return True
+    except:
+        return False
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -41,8 +53,13 @@ def signup(request):
             profile = Profile.objects.create(
                 user = user,
                 dob = serializer.data.get('dob'),
+                is_artist = serializer.data.get('is_artist'),
             )
             profile.save()
+            
+            if profile.is_artist:
+                create_artist_profile(profile)
+                
             tokens = get_tokens_for_user(user)
             response = SignUpResponseSerailizer(data={
                 'first_name' : serializer.data.get('first_name'),
@@ -55,6 +72,8 @@ def signup(request):
             })
             
             if response.is_valid():
+                # sending email is not working right now
+                # helpers.send_email(user.email, profile.id)
                 return Response(data=response.data,
                                 status=status.HTTP_201_CREATED)
             else:
@@ -70,9 +89,52 @@ def signup(request):
     return Response(data=serializer.error_messages,
                     status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def activate_account(request, profile_id):
+    profile_user = Profile.objects.get(id = profile_id)
+    if profile_user:
+        profile_user.is_email_verified = True
+        profile_user.save()
+        return Response(data={
+            "message" : "Account Activated Successfully"
+        },
+                        status=status.HTTP_202_ACCEPTED)
+    else:
+        Response(data={
+            "message" : "User does not exists or deleted."
+            },
+                        status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
-def create_profile(request, user_id):
-    return Response("done")
+def create_profile(request, profile_id):
+    profile_user = Profile.objects.get(id = profile_id)
+    if profile_user:
+        if profile_user.is_email_verified:
+            profile = ProfileSerializer(data=request.data)
+            if profile.is_valid():
+                data = profile.data
+                updated_profile = helpers.update_profile(data, profile_user)
+                print(updated_profile.dob)
+                return Response(data={
+                    "message" : "Account Updated Successfully",
+                    "updated_profile" : data
+                },
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response(data={
+                    "message" : profile.error_messages
+                },
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(data={
+                "message" : profile_user + " is not Activated. Please activate your account."
+            },
+                            status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+    else:
+        return Response(data={
+            "message" : "User does not exists or deleted."
+            },
+                        status=status.HTTP_400_BAD_REQUEST)
     

@@ -17,6 +17,7 @@ class Profile(models.Model):
     profile_headline = models.CharField(max_length=250, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     is_artist = models.BooleanField(default=False)
+    is_email_verified = models.BooleanField(default=False)
     
     def get_age(self):
         curr_date = datetime.now()
@@ -28,8 +29,8 @@ class Profile(models.Model):
     
 class ArtistsProfile(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
-    rating = models.DecimalField(max_digits=10, decimal_places=1)
-    fee = models.DecimalField(max_digits=20, decimal_places=2)
+    rating = models.DecimalField(max_digits=10, decimal_places=1, null=True, blank=True)
+    fee = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     on_break = models.BooleanField(default=False)
     #availability column is pending for now will work in future
     

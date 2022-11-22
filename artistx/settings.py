@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATABASE_URL = config('DATABASE_URL')
 DJANGO_SECRET_KEY = config("DJANGO_SECRET_KEY")
 IS_DEVELOPMENT = config("IS_DEVELOPMENT")
+ALLOWED_HOSTS_URI = config("ALLOWED_HOSTS_URI")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -32,8 +33,9 @@ SECRET_KEY = DJANGO_SECRET_KEY
 DEBUG = IS_DEVELOPMENT
 
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'artistx-backend.onrender.com',
+    # '127.0.0.1',
+    # 'artistx-backend.onrender.com',
+    ALLOWED_HOSTS_URI,
 ]
 
 
