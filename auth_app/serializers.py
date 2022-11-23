@@ -23,3 +23,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         exclude = ("user", "id", "is_email_verified", "profile_photo")
+        
+class ProfilePicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('profile_photo',)

@@ -13,7 +13,7 @@ class Profile(models.Model):
     country = models.CharField(max_length=50, blank=True, null=True)
     currency_code = models.CharField(max_length=10, blank=True, null=True, default="INR")
     state = models.CharField(max_length=50, blank=True, null=True)
-    profile_photo = models.ImageField(upload_to="media/Profile", blank=True, null=True)
+    profile_photo = models.ImageField(upload_to="Profile/", blank=True, null=True)
     profile_headline = models.CharField(max_length=250, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     is_artist = models.BooleanField(default=False)

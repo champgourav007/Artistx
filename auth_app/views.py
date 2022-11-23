@@ -9,9 +9,16 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import (
     RefreshToken,
 )
-from .serializers import SignUpRequestSerailizer, SignUpResponseSerailizer, ProfileSerializer
+from .serializers import SignUpRequestSerailizer, SignUpResponseSerailizer, ProfileSerializer, ProfilePicSerializer
 from .models import Profile, ArtistsProfile
 from . import helpers
+
+def create_response(message, status, data):
+    return {
+    'message' : message,
+    'status' : status,
+    'data' : data
+    }
 
 def create_artist_profile(profile):
     try:
@@ -74,36 +81,30 @@ def signup(request):
             if response.is_valid():
                 # sending email is not working right now
                 # helpers.send_email(user.email, profile.id)
-                return Response(data=response.data,
+                return Response(data=create_response('Successfully Created', status.HTTP_201_CREATED, response.data),
                                 status=status.HTTP_201_CREATED)
             else:
-                return Response(data="Some Error Occured", 
+                return Response(data=create_response(response.error_messages, status.HTTP_503_SERVICE_UNAVAILABLE, 'null'), 
                                 status=status.HTTP_503_SERVICE_UNAVAILABLE)
                             
         except:
-            return Response(data={
-                    'message' : 'User Already Exists',
-                },
+            return Response(data=create_response('User Already Exists', status.HTTP_208_ALREADY_REPORTED, 'null'),
                 status=status.HTTP_208_ALREADY_REPORTED)
         
-    return Response(data=serializer.error_messages,
+    return Response(data=create_response(serializer.error_messages , status.HTTP_400_BAD_REQUEST, 'null'),
                     status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(["GET"])
+@api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def activate_account(request, profile_id):
     profile_user = Profile.objects.get(id = profile_id)
     if profile_user:
         profile_user.is_email_verified = True
         profile_user.save()
-        return Response(data={
-            "message" : "Account Activated Successfully"
-        },
+        return Response(data=create_response('Account Activated Successfully', status.HTTP_202_ACCEPTED, 'null'),
                         status=status.HTTP_202_ACCEPTED)
     else:
-        Response(data={
-            "message" : "User does not exists or deleted."
-            },
+        Response(data=create_response('User does not exists or deleted.', status.HTTP_400_BAD_REQUEST, 'null'),
                         status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -123,24 +124,27 @@ def create_profile(request, profile_id):
                 profile_user.description = data.get('description', False) or profile_user.description
                 profile_user.save()
 
-                return Response(data={
-                    "message" : "Account Updated Successfully",
-                    "updated_profile" : data
-                },
+                return Response(data=create_response('Account Updated Successfully', status.HTTP_201_CREATED, data),
                                 status=status.HTTP_201_CREATED)
             else:
-                return Response(data={
-                    "message" : profile.error_messages
-                },
+                return Response(data=create_response(profile.error_messages, status.HTTP_400_BAD_REQUEST, 'null'),
                                 status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(data={
-                "message" : profile_user + " is not Activated. Please activate your account."
-            },
+            return Response(data=create_response(profile_user + ' is not Activated. Please activate your account.', status.HTTP_203_NON_AUTHORITATIVE_INFORMATION, 'null'),
                             status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
     else:
-        return Response(data={
-            "message" : "User does not exists or deleted."
-            },
+        return Response(data=create_response('User does not exists or deleted.', status.HTTP_400_BAD_REQUEST, 'null'),
                         status=status.HTTP_400_BAD_REQUEST)
-    
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def upload_profile_pic(request, profile_id):
+    profile_user = Profile.objects.get(id = profile_id)
+    if profile_user:
+        profile_photo = request.FILES['profile_photo']
+        profile_user.profile_photo = profile_photo
+        profile_user.save()
+        return Response(data=create_response('Profile Image Updated Successfully', status.HTTP_201_CREATED, 'null'))  
+    else:
+        return Response(data=create_response('User Does not Exists', status.HTTP_404_NOT_FOUND, 'null'))
+
