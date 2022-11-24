@@ -3,22 +3,33 @@ from django.template.loader import render_to_string
 from artistx import settings
 from .models import Profile
 from .serializers import ProfileSerializer
+from django.core.mail import EmailMessage
+from django.conf import settings
 
 DOMAIN = settings.ALLOWED_HOSTS_URI
-EMAIL_HOST = "gourav.19b131001@abes.ac.in"
 
-def send_email(to, profile_id):
+def send_email(to, profile_id, subject, url):
     message = render_to_string(
         'auth_app/email.html',
         context={
             "domain" : DOMAIN,
-            "profile_id" : profile_id
+            "profile_id" : profile_id,
         }
     )
-    print(message)
-    done = send_mail("Account Created Successfully on ArtistX", message, EMAIL_HOST, to, fail_silently=True)
-    print(done)
-    return
+    email = EmailMessage(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            to
+        )
+
+    email.fail_silently = False
+    email.send()
+    # done = send_mail("Account Created Successfully on ArtistX", message, EMAIL_HOST, to, fail_silently=True)
+    # print(done)
+    return True
+    # except:
+    #     return False
 
 def update_profile(data, profile):
     profile.dob = data.get('dob') or profile.dob
