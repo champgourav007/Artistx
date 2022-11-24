@@ -24,6 +24,8 @@ DATABASE_URL = config('DATABASE_URL')
 DJANGO_SECRET_KEY = config("DJANGO_SECRET_KEY")
 IS_DEVELOPMENT = config("IS_DEVELOPMENT")
 ALLOWED_HOSTS_URI = config("ALLOWED_HOSTS_URI")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -156,8 +158,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "gourav.19b131001@abes.ac.in"
-EMAIL_HOST_PASSWORD = 'iamgourav123'
+EMAIL_HOST_USER = EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
 
 
 REST_FRAMEWORK = {
