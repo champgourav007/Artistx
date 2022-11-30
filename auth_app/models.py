@@ -69,3 +69,8 @@ class Review(models.Model):
     
     def __str__(self):
         return f'{self.artist}'
+
+class Otp(models.Model):
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    otp = models.IntegerField(null=True)
+    valid_upto = models.DateTimeField(null=True)
