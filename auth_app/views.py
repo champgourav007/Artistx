@@ -34,7 +34,6 @@ from .models import Profile
 from .serializers import ProfileSerializer
 from django.core.mail import EmailMessage
 from django.conf import settings
-from . import gdrive
 
 DOMAIN = settings.ALLOWED_HOSTS_URI
 
