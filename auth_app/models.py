@@ -1,7 +1,7 @@
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
-from datetime import datetime
+from datetime import date
 
 
 # Create your models here.
@@ -14,15 +14,16 @@ class Profile(models.Model):
     currency_code = models.CharField(max_length=10, blank=True, null=True, default="INR")
     state = models.CharField(max_length=50, blank=True, null=True)
     profile_photo = models.ImageField(upload_to="Profile/", blank=True, null=True)
+    profile_photo_base64 = models.TextField(null=True)
     profile_headline = models.CharField(max_length=250, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    is_artist = models.BooleanField(default=False)
-    is_email_verified = models.BooleanField(default=False)
+    is_artist = models.BooleanField(default=False, null=True, blank=True)
+    is_email_verified = models.BooleanField(default=False, null=True, blank=True)
     
     def get_age(self):
-        curr_date = datetime.now()
-        delta = curr_date - self.dob
-        return delta.days
+        curr_date = date.today()
+        dob = self.dob
+        return (curr_date - dob).days // 365
     
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name} {self.user.email}'
@@ -31,11 +32,27 @@ class ArtistsProfile(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
     rating = models.DecimalField(max_digits=10, decimal_places=1, null=True, blank=True)
     fee = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    on_break = models.BooleanField(default=False)
+    on_break = models.BooleanField(default=False, blank=True, null=True)
+    
+    GENRE = (
+        ("Photography", "Photography"), 
+        ("Cinematography", "Cinematography"), 
+        ("DJ", "DJ"), 
+        ("Singer", "Singer"), 
+        ("Dancer", "Dancer"), 
+        ("Choreographers", "Choreographers"),
+        ("Others", "Others"))
+    genre = models.CharField(max_length=255, choices=GENRE, default="Photography")
     #availability column is pending for now will work in future
     
     def __str__(self):
         return f'{self.profile}'
+    
+    def artist_rating(self, artist):
+        tot_rating = Review.objects.filter(artist = artist).aggregate(models.Sum('rating'))
+        tol_people_rated = Review.objects.filter(artist = artist).aaggregate(models.Count('rating'))
+        return tot_rating / tol_people_rated
+        
     
 class Language(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)

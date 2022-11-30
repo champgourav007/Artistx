@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile
+from .models import Profile, ArtistsProfile, Language
 
 class SignUpRequestSerailizer(serializers.Serializer):
     first_name = serializers.CharField(max_length=20)
@@ -17,13 +17,8 @@ class SignUpResponseSerailizer(serializers.Serializer):
     email = serializers.EmailField()
     profile_id = serializers.UUIDField()
     is_artist = serializers.BooleanField(default=False)
-    access_token = serializers.CharField(max_length=1000)
-    refresh_token = serializers.CharField(max_length=1000)
-    
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        exclude = ("user", "id", "is_email_verified", "profile_photo")
+    access = serializers.CharField(max_length=1000)
+    refresh = serializers.CharField(max_length=1000)
         
 class ProfilePicSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,7 +29,18 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ('password','id')
+
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        exclude = ('user',)
+        exclude = ('user', 'id')
+        
+class ArtistProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArtistsProfile
+        exclude = ('profile', 'id')
+        
+class LanguagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
+        exclude = ('profile', 'id')
