@@ -1,10 +1,14 @@
 import base64
+from datetime import timedelta
 import io
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+from django.conf import settings
 import requests
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
@@ -14,6 +18,7 @@ from rest_framework_simplejwt.tokens import (
     RefreshToken,
 )
 from .serializers import (
+    LoginSerializer,
     SignUpRequestSerailizer, 
     SignUpResponseSerailizer, 
     ProfileSerializer, 
@@ -23,19 +28,22 @@ from .serializers import (
     LanguagesSerializer,
 )
 from .models import (
+    Otp,
     Profile, 
     ArtistsProfile, 
     Language
 )
 from . import helpers
-from django.template.loader import render_to_string
 from artistx import settings
 from .models import Profile
-from .serializers import ProfileSerializer
-from django.core.mail import EmailMessage
-from django.conf import settings
+from drf_yasg.utils import swagger_auto_schema
+from datetime import datetime
+
 
 DOMAIN = settings.ALLOWED_HOSTS_URI
+
+def generate_otp():
+    pass
 
 def create_response(message, status, data):
     return {
@@ -68,6 +76,7 @@ def get_tokens_for_user(user):
 
 
 # =================================Signup=================================
+@swagger_auto_schema(request_body=SignUpRequestSerailizer, method='POST')
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def signup(request):
@@ -143,18 +152,22 @@ def activate_account(request, profile_id):
                         status=status.HTTP_400_BAD_REQUEST)
 
 # =================================Create Profile=================================
+@swagger_auto_schema(request_body=ProfileSerializer, method='PUT')
 @api_view(['PUT'])
 @permission_classes([permissions.IsAuthenticated])
 def update_profile(request, profile_id):
     '''Api to Update the Profile'''
     
     try:
-        profile_user = Profile.objects.get(id = profile_id)
+        profile_user = Profile.objects.get(id=profile_id)
         if profile_user:
             if profile_user.is_email_verified:
-                profile_serializer = ProfileSerializer(data=request.data, partial=True)
-                profile_serializer.update(profile_user, request.data)
-                data = request.data
+                try:
+                    profile_serializer = ProfileSerializer(data=request.data, partial=True)
+                    profile_serializer.update(profile_user, request.data)
+                    data = request.data
+                except:
+                    return Response(data=create_response('Phone Number is Already used'))
                 if data.get('languages'):
                     all_languages = Language.objects.filter(profile=profile_user)
                     if all_languages:
@@ -174,23 +187,33 @@ def update_profile(request, profile_id):
                         status=status.HTTP_400_BAD_REQUEST)
 
 # =================================Update Artist Profile=================================
+@swagger_auto_schema(request_body=ArtistProfileSerializer, method='PUT')
 @api_view(['PUT'])
 @permission_classes([permissions.IsAuthenticated])
 def update_artist_profile(request, profile_id):
     '''API to update the artist profile'''
     
-    artist_user = ArtistsProfile.objects.get(profile_id = profile_id)
-    if artist_user:
-        updated_data = ArtistProfileSerializer(data=request.data, partial=True)
-        updated_data.update(artist_user, request.data)
-        if updated_data.is_valid():
-            return Response(data=create_response("Update Successfull.", status.HTTP_200_OK, updated_data.data),
-                            status=status.HTTP_200_OK)
-        else:
-            return Response(data=create_response("Something went wrong.", status.HTTP_400_BAD_REQUEST, None),
-                        status=status.HTTP_400_BAD_REQUEST)
+    try:
+        artist_user = ArtistsProfile.objects.get(profile_id = profile_id)
+    except:
+        return Response(data=create_response("User is not the Artist.", status.HTTP_404_NOT_FOUND, None),
+                            status=status.HTTP_404_NOT_FOUND)
+    try:
+        if artist_user:
+            updated_data = ArtistProfileSerializer(data=request.data, partial=True)
+            updated_data.update(artist_user, request.data)
+            if updated_data.is_valid():
+                return Response(data=create_response("Update Successfull.", status.HTTP_200_OK, updated_data.data),
+                                status=status.HTTP_200_OK)
+            else:
+                return Response(data=create_response("Something went wrong.", status.HTTP_400_BAD_REQUEST, None),
+                            status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response(data=create_response("Please check the keys of the values.", status.HTTP_400_BAD_REQUEST, updated_data.data),
+                                status=status.HTTP_400_BAD_REQUEST)
 
 # =================================Upload Profile Pic=================================
+@swagger_auto_schema(request_body=ProfilePicSerializer, method='POST')
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def upload_profile_pic(request, profile_id):
@@ -216,19 +239,29 @@ def upload_profile_pic(request, profile_id):
                         status=status.HTTP_404_NOT_FOUND)
 
 # =================================Login=================================
+@swagger_auto_schema(request_body=LoginSerializer, method='POST')
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def login_user(request):
     '''API to login user'''
     
     username, password = request.data.get('username'), request.data.get('password')
-    user = User.objects.get(email = username)
+    try:
+        user = User.objects.get(email = username)
+    except:
+        return Response(data=create_response("User does not exists.", status.HTTP_400_BAD_REQUEST, None),
+                        status=status.HTTP_400_BAD_REQUEST)
     if user:
         profile = Profile.objects.get(user=user)
         if profile.is_email_verified:    
             if user.check_password(password):
                 login(request, user)
-                artist_profile = ArtistsProfile.objects.get(profile=profile)
+                artist_profile = None
+                artist_profile_data = None
+                if profile.is_artist:
+                    artist_profile = ArtistsProfile.objects.get(profile=profile)
+                    artist_profile_data = ArtistProfileSerializer(artist_profile).data
+                
                 languages = Language.objects.filter(profile=profile)
                 tokens = get_tokens_for_user(user)
                 return Response(data=create_response("Login Successfull", status.HTTP_202_ACCEPTED, {
@@ -237,7 +270,7 @@ def login_user(request):
                     "user_details" : UserSerializer(user).data,
                     "languages" : LanguagesSerializer(languages, many=True).data,
                     "profile_details" : ProfileSerializer(profile).data,
-                    "artist_details" : ArtistProfileSerializer(artist_profile).data,
+                    "artist_details" : artist_profile_data,
                 }),
                                 status=status.HTTP_202_ACCEPTED)
             else:
@@ -269,11 +302,14 @@ def logout_user(request):
 @permission_classes([permissions.AllowAny])
 def forgot_password(request):
     '''API to reset the password'''
-    
-    user = User.objects.get(email = request.data.get('email'))
+    try:
+        user = User.objects.get(email = request.data.get('email'))
+    except:
+        return Response(data=create_response('User does not exists. Please check email id.', status.HTTP_404_NOT_FOUND, None),
+                        status=status.HTTP_404_NOT_FOUND)
     if user:
-        # Pending
-        pass
+        profile = Profile.objects.get(user=user)
+        
     else:
         return Response(data=create_response('User does not exists. Please check email id.', status.HTTP_404_NOT_FOUND, None),
                         status=status.HTTP_404_NOT_FOUND)
@@ -290,12 +326,14 @@ def send_email(request):
         if 'Forgot' in subject:
             user = User.objects.get(email=email)
             profile = Profile.objects.get(user=user)
+            
             if user:
                 message = render_to_string(
                     'auth_app/forgot_password.html',
                     context={
                         "domain" : DOMAIN,
                         "profile_id" : profile.id,
+                        "otp" : "somthing",
                     })
             else:
                 return Response(data=create_response('User does not exist.', status.HTTP_404_NOT_FOUND, None))

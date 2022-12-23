@@ -9,7 +9,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, verbose_name=("user"), on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     dob = models.DateField(blank=True, null=True)
-    phone_number = models.CharField(max_length=20, blank=True, null=True, unique=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
     country = models.CharField(max_length=50, blank=True, null=True)
     currency_code = models.CharField(max_length=10, blank=True, null=True, default="INR")
     state = models.CharField(max_length=50, blank=True, null=True)
@@ -74,3 +74,4 @@ class Otp(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
     otp = models.IntegerField(null=True)
     valid_upto = models.DateTimeField(null=True)
+    created_on = models.DateTimeField(auto_now=True, null=True)

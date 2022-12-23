@@ -28,12 +28,12 @@ class ProfilePicSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = ('password','id')
+        exclude = ('password',)
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        exclude = ('user', 'id')
+        exclude = ('user','id')
         
 class ArtistProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,3 +44,8 @@ class LanguagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Language
         exclude = ('profile', 'id')
+        
+class LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'password')

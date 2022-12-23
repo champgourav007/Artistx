@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'auth_app',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -152,6 +153,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DATE_INPUT_FORMATS = ['%Y-%m-%d']
+USE_TZ = True
 
 # =================================Email Authentication=================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
