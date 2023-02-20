@@ -25,6 +25,9 @@ class Profile(models.Model):
         dob = self.dob
         return (curr_date - dob).days // 365
     
+    def name(self):
+        return f'{self.user.first_name} {self.user.last_name}'
+    
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name} {self.user.email}'
     

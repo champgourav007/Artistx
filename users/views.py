@@ -17,16 +17,17 @@ from auth_app.models import (
   Language
 )
 from auth_app.views import create_response
+from drf_yasg.utils import swagger_auto_schema
 
-# Create your views here.
+import requests
+
+
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def get_user(request, user_id):
   try:
     user = User.objects.get(id=user_id)
-    print(user)
     profile = Profile.objects.get(user=user)
-    print(profile)
     languages = Language.objects.filter(profile=profile)
     artist_profile = None
     if profile.is_artist:
@@ -34,7 +35,6 @@ def get_user(request, user_id):
   except:
     return Response(create_response('Please check the id.', status.HTTP_400_BAD_REQUEST, None),
                     status=status.HTTP_400_BAD_REQUEST)
-    
   if user:
     user_data = UserSerializer(user).data
     profile_data = ProfileSerializer(profile).data
@@ -53,3 +53,18 @@ def get_user(request, user_id):
   else:
     return Response(create_response("serailizer.error_messages", status.HTTP_400_BAD_REQUEST, None),
                     status=status.HTTP_400_BAD_REQUEST)
+    
+# to be done
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def sort_artists_using_db_column(request):
+  col, sort_dir  = request.query_params.get('col'), request.query_params.get('sortDir')
+  if col.lower() == 'genre':
+    artists = ArtistsProfile.objects.order_by(str(col))
+    print(artists)
+  return Response("Dne")
+
+
+# @api_view(['GET'])
+# @permission_classes([permissions.IsAuthenticated])
+# def sort_artists_using_location(request, lat, lng):

@@ -26,6 +26,7 @@ IS_DEVELOPMENT = config("IS_DEVELOPMENT")
 ALLOWED_HOSTS_URI = config("ALLOWED_HOSTS_URI")
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+SENDER_EMAIL = config('SENDER_EMAIL')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -101,7 +102,6 @@ WSGI_APPLICATION = 'artistx.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
