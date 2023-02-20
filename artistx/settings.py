@@ -26,7 +26,7 @@ IS_DEVELOPMENT = config("IS_DEVELOPMENT")
 ALLOWED_HOSTS_URI = config("ALLOWED_HOSTS_URI")
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
-SENDER_EMAIL = config('SENDER_EMAIL')
+# SENDER_EMAIL = config('SENDER_EMAIL')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
