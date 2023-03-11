@@ -32,5 +32,7 @@ jobs:
           ALLOWED_HOSTS_URI: ${{ secrets.ALLOWED_HOSTS_URI }}
           EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
           EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          EMAIL_HOST_PORT: ${{ secrets.EMAIL_HOST_PORT }}
+          EMAIL_HOST_SERVER: ${{ secrets.EMAIL_HOST_SERVER }}
         run: |
           python manage.py test

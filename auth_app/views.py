@@ -337,9 +337,9 @@ def send_email(request):
     
     try:
         data = request.data
-        profile_id, subject, email = data.get('profile_id'), data.get('subject'), data.get('email')
+        profile_id, subject, recepient_email = data.get('profile_id'), data.get('subject'), data.get('email')
         if 'Forgot' in subject:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email=recepient_email)
             profile = Profile.objects.get(user=user)
             
             if user:
@@ -365,8 +365,9 @@ def send_email(request):
                 subject,
                 message,
                 settings.EMAIL_HOST_USER,
-                [email]
+                [recepient_email]
             )
+        email.content_subtype = "html"
         email.fail_silently = False
         email.send()
         return Response(data=create_response("Email sent Successfully.", status.HTTP_200_OK, None),
