@@ -1,8 +1,5 @@
 .env
 artistx-env
-*.jpg
-*.png
-*.jpeg
 *.txt
 .vscode/
 
