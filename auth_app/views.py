@@ -346,7 +346,7 @@ def send_email(request):
                 message = render_to_string(
                     'auth_app/forgot_password.html',
                     context={
-                        "domain" : DOMAIN,
+                        "domain" : "https://artistx-backend.onrender.com",
                         "profile_id" : profile.id,
                         "otp" : "somthing",
                     })
@@ -356,7 +356,7 @@ def send_email(request):
             message = render_to_string(
                 'auth_app/email.html',
                 context={
-                    "domain" : DOMAIN,
+                    "domain" : "https://artistx-backend.onrender.com",
                     "profile_id" : profile_id,
                 }
             )
