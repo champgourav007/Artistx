@@ -82,55 +82,56 @@ def get_tokens_for_user(user):
 def signup(request):
     '''Function for signup'''
     
-    serializer = SignUpRequestSerailizer(data=request.data)
-    
-    if serializer.is_valid():
-        try:
-            user = User.objects.create_user(
-                username = serializer.data.get('email'),
-                first_name = serializer.data.get('first_name'),
-                last_name = serializer.data.get('last_name'),
-                email = serializer.data.get('email'),
-                password = serializer.data.get('password'),
-            )
-            user.is_active = True
-            user.save()
-            
-            profile = Profile.objects.create(
-                user = user,
-                dob = serializer.data.get('dob'),
-                is_artist = serializer.data.get('is_artist'),
-            )
-            profile.save()
-            
-            if profile.is_artist:
-                create_artist_profile(profile)
-                
-            tokens = get_tokens_for_user(user)
-            response = SignUpResponseSerailizer(data={
-                'first_name' : serializer.data.get('first_name'),
-                'last_name' : serializer.data.get('last_name'),
-                'email' : serializer.data.get('email'),
-                'dob' : serializer.data.get('dob'),
-                'profile_id' : profile.id,
-                'access' : tokens.get('access'),
-                'refresh' : tokens.get('refresh'),
-                'is_artist' : serializer.data.get('is_artist'),
-            })
-            
-            if response.is_valid():
-                return Response(data=create_response('Successfully Created', status.HTTP_201_CREATED, response.data),
-                                status=status.HTTP_201_CREATED)
-            else:
-                return Response(data=create_response(response.error_messages, status.HTTP_503_SERVICE_UNAVAILABLE, None), 
-                                status=status.HTTP_503_SERVICE_UNAVAILABLE)
-                            
-        except:
-            return Response(data=create_response('User Already Exists', status.HTTP_208_ALREADY_REPORTED, None),
-                status=status.HTTP_208_ALREADY_REPORTED)
+    try:
+        serializer = SignUpRequestSerailizer(data=request.data)
         
-    return Response(data=create_response(serializer.error_messages , status.HTTP_400_BAD_REQUEST, None),
-                    status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            try:
+                user = User.objects.create_user(
+                    username = serializer.data.get('email'),
+                    first_name = serializer.data.get('first_name'),
+                    last_name = serializer.data.get('last_name'),
+                    email = serializer.data.get('email'),
+                    password = serializer.data.get('password'),
+                )
+                user.is_active = True
+                user.save()
+                
+                profile = Profile.objects.create(
+                    user = user,
+                    dob = serializer.data.get('dob'),
+                    is_artist = serializer.data.get('is_artist'),
+                )
+                profile.save()
+                
+                if profile.is_artist:
+                    create_artist_profile(profile)
+
+                tokens = get_tokens_for_user(user)
+                response = SignUpResponseSerailizer(data={
+                    'first_name' : serializer.data.get('first_name'),
+                    'last_name' : serializer.data.get('last_name'),
+                    'email' : serializer.data.get('email'),
+                    'dob' : serializer.data.get('dob'),
+                    'profile_id' : profile.id,
+                    'access' : tokens.get('access'),
+                    'refresh' : tokens.get('refresh'),
+                    'is_artist' : serializer.data.get('is_artist'),
+                })
+                
+                if response.is_valid():
+                    return Response(data=create_response('Successfully Created', status.HTTP_201_CREATED, response.data),
+                                    status=status.HTTP_201_CREATED)
+                else:
+                    return Response(data=create_response(response.error_messages, status.HTTP_503_SERVICE_UNAVAILABLE, None), 
+                                    status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                                
+            except:
+                return Response(data=create_response('User Already Exists', status.HTTP_208_ALREADY_REPORTED, None),
+                    status=status.HTTP_208_ALREADY_REPORTED)
+    except:
+        return Response(data=create_response(serializer.error_messages , status.HTTP_400_BAD_REQUEST, None),
+                        status=status.HTTP_400_BAD_REQUEST)
 
 # =================================Activate Account=================================
 @api_view(['GET'])
@@ -138,17 +139,21 @@ def signup(request):
 def activate_account(request, profile_id):
     '''API to Activate the Account'''
     
-    profile_user = Profile.objects.get(id = profile_id)
-    if profile_user:
-        if profile_user.is_email_verified:
-            return Response(data=create_response('Account already activated. Please Login.', status.HTTP_202_ACCEPTED, None),
-                        status=status.HTTP_202_ACCEPTED)
-        profile_user.is_email_verified = True
-        profile_user.save()
-        return Response(data=create_response('Account Activated Successfully', status.HTTP_202_ACCEPTED, None),
-                        status=status.HTTP_202_ACCEPTED)
-    else:
-        Response(data=create_response('User does not exists or deleted.', status.HTTP_400_BAD_REQUEST, None),
+    try:
+        profile_user = Profile.objects.get(id = profile_id)
+        if profile_user:
+            if profile_user.is_email_verified:
+                return Response(data=create_response('Account already activated. Please Login.', status.HTTP_202_ACCEPTED, None),
+                            status=status.HTTP_202_ACCEPTED)
+            profile_user.is_email_verified = True
+            profile_user.save()
+            return Response(data=create_response('Account Activated Successfully', status.HTTP_202_ACCEPTED, None),
+                            status=status.HTTP_202_ACCEPTED)
+        else:
+            Response(data=create_response('User does not exists or deleted.', status.HTTP_400_BAD_REQUEST, None),
+                            status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response(data=create_response('No Account Found' , status.HTTP_400_BAD_REQUEST, None),
                         status=status.HTTP_400_BAD_REQUEST)
 
 # =================================Create Profile=================================
@@ -235,7 +240,7 @@ def upload_profile_pic(request, profile_id):
             return Response(data=create_response('User Does not Exists.', status.HTTP_404_NOT_FOUND, None),
                             status=status.HTTP_404_NOT_FOUND)
     except:
-        return Response(data=create_response('Something went wrong.', status.HTTP_404_NOT_FOUND, None),
+        return Response(data=create_response('Something went wrong.', status.HTTP_400_BAD_REQUEST, None),
                         status=status.HTTP_404_NOT_FOUND)
 
 # =================================Login=================================
@@ -245,44 +250,49 @@ def upload_profile_pic(request, profile_id):
 def login_user(request):
     '''API to login user'''
     
-    username, password = request.data.get('username'), request.data.get('password')
     try:
-        user = User.objects.get(email = username)
-    except:
-        return Response(data=create_response("User does not exists.", status.HTTP_400_BAD_REQUEST, None),
-                        status=status.HTTP_400_BAD_REQUEST)
-    if user:
-        profile = Profile.objects.get(user=user)
-        if profile.is_email_verified:    
-            if user.check_password(password):
-                login(request, user)
-                artist_profile = None
-                artist_profile_data = None
-                if profile.is_artist:
-                    artist_profile = ArtistsProfile.objects.get(profile=profile)
-                    artist_profile_data = ArtistProfileSerializer(artist_profile).data
-                
-                languages = Language.objects.filter(profile=profile)
-                tokens = get_tokens_for_user(user)
-                return Response(data=create_response("Login Successfull", status.HTTP_202_ACCEPTED, {
-                    "access" : tokens['access'],
-                    "refresh" : tokens['refresh'],
-                    "user_details" : UserSerializer(user).data,
-                    "languages" : LanguagesSerializer(languages, many=True).data,
-                    "profile_details" : ProfileSerializer(profile).data,
-                    "artist_details" : artist_profile_data,
-                }),
-                                status=status.HTTP_202_ACCEPTED)
+        username, password = request.data.get('username'), request.data.get('password')
+        try:
+            user = User.objects.get(email = username)
+        except:
+            return Response(data=create_response("User does not exists.", status.HTTP_400_BAD_REQUEST, None),
+                            status=status.HTTP_400_BAD_REQUEST)
+        if user:
+            profile = Profile.objects.get(user=user)
+            if profile.is_email_verified:    
+                if user.check_password(password):
+                    login(request, user)
+                    artist_profile = None
+                    artist_profile_data = None
+                    if profile.is_artist:
+                        artist_profile = ArtistsProfile.objects.get(profile=profile)
+                        artist_profile_data = ArtistProfileSerializer(artist_profile).data
+                    
+                    languages = Language.objects.filter(profile=profile)
+                    tokens = get_tokens_for_user(user)
+                    return Response(data=create_response("Login Successfull", status.HTTP_202_ACCEPTED, {
+                        "access" : tokens['access'],
+                        "refresh" : tokens['refresh'],
+                        "user_details" : UserSerializer(user).data,
+                        "languages" : LanguagesSerializer(languages, many=True).data,
+                        "profile_details" : ProfileSerializer(profile).data,
+                        "artist_details" : artist_profile_data,
+                    }),
+                                    status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response(data=create_response("Password does not match.", status.HTTP_200_OK, None),
+                                    status=status.HTTP_200_OK)
             else:
-                return Response(data=create_response("Password does not match.", status.HTTP_200_OK, None),
-                                status=status.HTTP_200_OK)
+                Response(data=create_response("Please Verify your Email.", status.HTTP_204_NO_CONTENT, None),
+                        status=status.HTTP_200_OK)
         else:
-            Response(data=create_response("Please Verify your Email", status.HTTP_200_OK, None),
-                     status=status.HTTP_200_OK)
-    else:
-        return Response(data=create_response("User does not exists.", status.HTTP_400_BAD_REQUEST, None),
-                        status=status.HTTP_400_BAD_REQUEST)
-    
+            return Response(data=create_response("User does not exists.", status.HTTP_400_BAD_REQUEST, None),
+                            status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response(data=create_response('Please send valid request keys.', status.HTTP_400_BAD_REQUEST, None),
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        
 # =================================Logout=================================
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.IsAuthenticated])
@@ -302,18 +312,23 @@ def logout_user(request):
 @permission_classes([permissions.AllowAny])
 def forgot_password(request):
     '''API to reset the password'''
+    
     try:
         user = User.objects.get(email = request.data.get('email'))
     except:
         return Response(data=create_response('User does not exists. Please check email id.', status.HTTP_404_NOT_FOUND, None),
                         status=status.HTTP_404_NOT_FOUND)
-    if user:
-        profile = Profile.objects.get(user=user)
-        
-    else:
-        return Response(data=create_response('User does not exists. Please check email id.', status.HTTP_404_NOT_FOUND, None),
-                        status=status.HTTP_404_NOT_FOUND)
-        
+    try:    
+        if user:
+            profile = Profile.objects.get(user=user)
+            
+        else:
+            return Response(data=create_response('User does not exists. Please check email id.', status.HTTP_404_NOT_FOUND, None),
+                            status=status.HTTP_404_NOT_FOUND)
+    except:
+        return Response(data=create_response("Profile Not Found.", status.HTTP_404_NOT_FOUND, None),
+                            status=status.HTTP_404_NOT_FOUND)
+
 # =================================Send Email=================================
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])

@@ -4,3 +4,6 @@ artistx-env
 *.png
 *.jpeg
 *.txt
+.vscode/
+
+__pycache__/
