@@ -1,6 +1,7 @@
 import base64
 from datetime import timedelta
 import io
+import json
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.mail import send_mail
@@ -17,6 +18,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import (
     RefreshToken,
 )
+from constants.common.upload_images import upload
 from .serializers import (
     LoginSerializer,
     SignUpRequestSerailizer, 
@@ -227,15 +229,17 @@ def upload_profile_pic(request, profile_id):
     try:
         profile_user = Profile.objects.get(id = profile_id)
         if profile_user:
-            profile_photo_type = request.FILES['profile_photo'].name.split(".")[-1]
             profile_photo = request.FILES['profile_photo']
-            with profile_photo.open("rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read())
-            encoded_string = "data:image/" + profile_photo_type + ";base64," + str(encoded_string)[2:]
-            profile_user.profile_photo_base64 = encoded_string
-            profile_user.save()
-            return Response(data=create_response('Profile Image Updated Successfully.', status.HTTP_201_CREATED, encoded_string),
-                            status=status.HTTP_201_CREATED)  
+            profile_pic_data = upload(profile_photo.file)
+            if profile_pic_data:
+                profile_user.profile_photo = json.loads(profile_pic_data.text)['data']['media']
+                profile_user.profile_photo_thumb = json.loads(profile_pic_data.text)['data']['thumb']
+                profile_user.save()
+                return Response(data=create_response('Profile Image Updated Successfully.', status.HTTP_201_CREATED, profile_user.profile_photo),
+                                status=status.HTTP_201_CREATED) 
+            else:
+                return  Response(data=create_response('Something went wrong, Profile Pic did not uploaded.', status.HTTP_400_BAD_REQUEST, None),
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(data=create_response('User Does not Exists.', status.HTTP_404_NOT_FOUND, None),
                             status=status.HTTP_404_NOT_FOUND)
