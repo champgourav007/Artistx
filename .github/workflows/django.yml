@@ -34,5 +34,7 @@ jobs:
           EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
           EMAIL_HOST_PORT: ${{ secrets.EMAIL_HOST_PORT }}
           EMAIL_HOST_SERVER: ${{ secrets.EMAIL_HOST_SERVER }}
+          IMAGE_UPLOAD_KEY: ${{ secrets.IMAGE_UPLOAD_KEY }}
+          IMAGE_UPLOAD_URL: ${{ secrets.IMAGE_UPLOAD_URL }}
         run: |
           python manage.py test
