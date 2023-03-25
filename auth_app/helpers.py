@@ -1,8 +1,6 @@
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from artistx import settings
-from .models import Profile
-from .serializers import ProfileSerializer
 from django.core.mail import EmailMessage
 from django.conf import settings
 

@@ -1,6 +1,4 @@
-import json
 import sys
-from django.http import JsonResponse
 sys.path.append("..")
 from django.shortcuts import render
 from django.contrib.auth.models import User
@@ -11,8 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 from users.serializers import (
   FilterArtistSerializer,
-  UserSerializer,
-  FiltersListSerializers
+  UserSerializer
 )
 
 from auth_app.serializers import (
@@ -26,7 +23,6 @@ from auth_app.models import (
   Language
 )
 from auth_app.views import create_response
-from drf_yasg.utils import swagger_auto_schema
 
 from constants.users import FiltersConstants as constants
 

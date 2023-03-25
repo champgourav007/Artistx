@@ -1,16 +1,9 @@
-import base64
-from datetime import timedelta
-import io
 import json
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.conf import settings
-import requests
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -30,16 +23,13 @@ from .serializers import (
     LanguagesSerializer,
 )
 from .models import (
-    Otp,
     Profile, 
     ArtistsProfile, 
     Language
 )
-from . import helpers
 from artistx import settings
 from .models import Profile
 from drf_yasg.utils import swagger_auto_schema
-from datetime import datetime
 
 
 DOMAIN = settings.ALLOWED_HOSTS_URI
