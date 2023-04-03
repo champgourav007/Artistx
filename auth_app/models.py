@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from datetime import date
 
+from constants.auth_app.models_choices import WEEK_DAYS
+
 
 # Create your models here.
 class Profile(models.Model):
@@ -31,6 +33,12 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name} {self.user.email}'
     
+    def languages(self, profile):
+        all_languages = Language.objects.filter(profile=profile)
+        print(all_languages)
+        return list(all_languages)
+
+
 class ArtistsProfile(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
     rating = models.DecimalField(max_digits=10, decimal_places=1, null=True, blank=True)
@@ -46,7 +54,6 @@ class ArtistsProfile(models.Model):
         ("Choreographers", "Choreographers"),
         ("Others", "Others"))
     genre = models.CharField(max_length=255, choices=GENRE, default="Photography")
-    #availability column is pending for now will work in future
     
     def __str__(self):
         return f'{self.profile}'
