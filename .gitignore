@@ -4,3 +4,5 @@ artistx-env
 .vscode/
 
 __pycache__/
+
+*.sqlite3

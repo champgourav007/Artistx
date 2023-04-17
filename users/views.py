@@ -101,7 +101,6 @@ def sort_artists_using_db_column(request):
   col, sort_dir  = request.query_params.get('col'), request.query_params.get('sortDir')
   if col.lower() == 'genre':
     artists = ArtistsProfile.objects.order_by(str(col))
-    print(artists)
   return Response("Done")
 
 
@@ -122,13 +121,19 @@ def get_filters_list(request):
 @permission_classes([permissions.IsAuthenticated])
 def get_artist_by_search_term(request):
   try:
-    
     params = request.query_params
     search_term, rating, location, genre =  params.get('search_term'), params.get('rating'), params.get('location'), params.get('genre')
     data_dict = {}
     artists_list = []
     
-    rating = rating if rating else 5
+    if(not search_term and not rating and not location and not genre):
+      for artist in ArtistsProfile.objects.all():
+        user_profile = get_artist_profile(None, None, artist)
+        if user_profile and not data_dict.get(user_profile.get('profile_id')):
+          artists_list.append(FilterArtistSerializer(user_profile).data)
+          data_dict[user_profile.get('profile_id')] = 1
+      return Response(data=create_response('Sucessfull Response.', status.HTTP_200_OK, artists_list),
+                    status=status.HTTP_200_OK)
 
     if search_term:
       res_name = User.objects.filter(Q(first_name__contains=search_term) | Q(last_name__contains=search_term))
@@ -162,8 +167,8 @@ def get_artist_by_search_term(request):
           artists_list.append(FilterArtistSerializer(genre_profile).data)
           data_dict[genre_profile.get('profile_id')] = 1
 
-    return Response(data=create_response("Successfull Response", status.HTTP_200_OK, artists_list),
+    return Response(data=create_response("Successfull Response.", status.HTTP_200_OK, artists_list),
                     status=status.HTTP_200_OK)
   except:
-    return Response(data=create_response("Something went wrong", status.HTTP_400_BAD_REQUEST, None),
+    return Response(data=create_response("Something went wrong.", status.HTTP_400_BAD_REQUEST, None),
                     status=status.HTTP_400_BAD_REQUEST)

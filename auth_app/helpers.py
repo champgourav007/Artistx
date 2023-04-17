@@ -24,7 +24,6 @@ def send_email(to, profile_id, subject, url):
     email.fail_silently = False
     email.send()
     # done = send_mail("Account Created Successfully on ArtistX", message, EMAIL_HOST, to, fail_silently=True)
-    # print(done)
     return True
     # except:
     #     return False

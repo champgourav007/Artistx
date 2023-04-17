@@ -1,0 +1,1 @@
+AVAILABILITY_CHOICES = (("RECURRING", "Recurring"), ("OCCASIONAL", "Occasional"), ("BOOKED", "Booked"), ("BLOCKED", "Blocked"))

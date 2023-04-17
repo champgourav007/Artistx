@@ -35,7 +35,6 @@ class Profile(models.Model):
     
     def languages(self, profile):
         all_languages = Language.objects.filter(profile=profile)
-        print(all_languages)
         return list(all_languages)
 
 
