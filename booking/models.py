@@ -29,7 +29,7 @@ class Event(models.Model):
   event_directions = models.CharField(max_length=255, blank=True, null=True)
   audio_instructions = models.URLField(blank=True, null=True)
   expected_footfall = models.IntegerField(blank=True, null=True)
-  event_duration = models.DecimalField(max_digits=100000,decimal_places=2, blank=True, null=True)
+  event_duration = models.DecimalField(max_digits=1000,decimal_places=2, blank=True, null=True)
   accomodation = models.CharField(max_length=200, blank=True, null=True)
   accomodation_address = models.TextField(blank=True, null=True)
   
